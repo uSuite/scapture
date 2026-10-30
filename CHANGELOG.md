@@ -2,6 +2,11 @@
 
 Versions follow semver. Each release lists what a user notices; docs/DECISIONS.md has the reasoning.
 
+## Unreleased
+
+- Settings… in the menu (cmd-,) opens a Settings window: the root folder with a folder picker, the file name style, placing the window before a capture and the wait after a move, the flash, the toast, launch at login. Each control writes one line of `~/.config/scapture/config`, so the file stays the truth.
+- The same window shows whether Screen Recording and Accessibility are allowed, with a button to each System Settings pane, lists the problems in the config files, and opens the profiles, the keymap and the config folder.
+
 ## 0.1.0 (2026-10-30)
 
 - The Swift menu bar app. The menu bar shows the active case, its capture count and the active profile.

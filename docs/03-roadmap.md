@@ -19,6 +19,10 @@ The smallest app worth installing: one key puts the profile's window, at its siz
 - Config, keymap and profiles as plain text, reloaded on change (SC-505, without export).
 - `make smoke` on the app's own test window (SC-602); universal ad hoc zip on GitHub Releases.
 
+## 0.1.1: Settings window (next)
+
+- Settings… (cmd-,): every config option as a control writing one line of config, the two permissions with a button to each pane, the problems in the files, and the profiles, keymap and config folder (SC-505).
+
 ## 0.2.0: picker, area and CLI
 
 - Case picker panel with fuzzy search, `j`/`k` and new case from the keyboard (SC-102).
