@@ -211,7 +211,9 @@ final class ProfilesModel {
         }
         run { model throws(CaptureError) in
             let placed = try await model.service.place(model.target, config: model.config())
-            let frame = placed.window.frame
+            // a move to another display lands after the call returns, so the
+            // frame is read again once the settle time has passed
+            let frame = (try? await model.windows.refresh(placed.window))?.frame ?? placed.window.frame
             model.status = (["placed \(placed.window.app) at \(Int(frame.minX)), \(Int(frame.minY)), \(Int(frame.width)) x \(Int(frame.height))"] + placed.warnings).joined(separator: "; ")
         }
     }
