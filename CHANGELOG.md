@@ -1,0 +1,26 @@
+# Changelog
+
+Versions follow semver. Each release lists what a user notices; docs/DECISIONS.md has the reasoning.
+
+## 0.1.0 (2026-10-30)
+
+- The Swift menu bar app. The menu bar shows the active case, its capture count and the active profile.
+- `ctrl-shift-5` captures the profile's window into the active case at exactly `(size - inset) x scale` pixels, whatever the display's scale; the window is placed at the profile's frame first (`auto_position`). `ctrl-shift-r` captures the same window again, `ctrl-shift-p` only places it.
+- Profiles in `~/.config/scapture/profiles`: app by bundle id, name or `frontmost`, optional window title, origin, size, inset and scale. `front-window` and `console-chrome` ship as examples; `ctrl-alt-1` to `ctrl-alt-9` switch, and a case remembers the profile it was first captured with.
+- Cases are the lower-case folders under the root (`~/Pictures/scapture`); the menu lists them, makes new ones and opens the active one in Finder, sView or sNotate.
+- Names `scap-YYYY-MM-DD-HHMMSS.png` (a letter for a second capture in the same second) or `<case-id>-<nn>.png` with `name case-step`. PNG in sRGB at 72 or 144 dpi, written under a temporary name and renamed into place; no file is ever replaced.
+- A flash on the captured rect and a toast with the thumbnail, step and pixel size; a click opens the capture in sNotate or sView. Warnings say when a window kept another size or was upsampled from a 1x display.
+- Global keys from `~/.config/scapture/keymap`, without any permission. Config, keymap and profiles reload when they change; problems and missing permissions show in the menu. Every capture is a line in `~/.config/scapture/log`.
+- Launch at login from the menu.
+
+## 0.0.3 (2026-10-30)
+
+- The icon: the family s on green with a reticle.
+
+## 0.0.2 (2026-10-30)
+
+- The tree made fit to publish: the proof of concept's root defaults to `~/Pictures/scapture`, neutral examples, `make test`.
+
+## 0.0.1 (2026-10-28)
+
+- `scripts/poc.sh`, the shell proof of concept: `use <case-id>`, `shot [app] [title]`, and the active case with its count.

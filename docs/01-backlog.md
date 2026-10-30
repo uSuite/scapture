@@ -1,21 +1,21 @@
 # sCapture: backlog
 
-One thing: a hotkey puts a screenshot of the right window, at the right size and scale, into the active PoC case folder, and tells you the step number. Nothing is edited here; sNotate does that.
+One thing: a hotkey puts a screenshot of the right window, at the right size and scale, into the active case folder, and tells you the step number. Nothing is edited here; sNotate does that.
 
-Input and output are fixed by the evidence procedure: the case folder `<poc-root>/<case-id>/`, capture names that sort chronologically, `.png`. Priorities: P0 first usable release, P1 complete workflow, P2 comfort, P3 parked. IDs SC-xxx.
+Input and output are fixed by the evidence procedure: the case folder `<root>/<case-id>/`, capture names that sort chronologically, `.png`. Priorities: P0 first usable release, P1 complete workflow, P2 comfort, P3 parked. IDs SC-xxx.
 
 ## Non-goals
 
 - No editor, no annotation, no clipboard history, no cloud, no recording, no GIF, no OCR.
 - No scrolling capture in v1 (console pages that need it are rare in the PoC set; parked as SC-703).
 - No Dock icon, no main window; a menu bar item and a few panels.
-- Not for sale, not general purpose.
+- Free and open source (MIT), built for step-by-step evidence and guides; not a general screenshot tool.
 
 ## E1 Active case (P0)
 
-- SC-101 One active case at a time: a folder under a configured PoC root (`root ~/Pictures/scapture`). The menu bar item shows `<case-id>  n` where n is the number of captures in the folder; the item shows a neutral icon when no case is active, and every capture is refused until one is.
-- SC-102 Case picker (`hotkey_case`, default `ctrl-shift-space`): a floating panel with fuzzy search over all `poc-*` folders under the root, `j`/`k` or arrows to move, `Enter` to pick, `Esc` to cancel; most recent cases first.
-- SC-103 New case from the picker: typing an id that does not exist and pressing `cmd-Enter` creates the folder after validating `^poc-[a-z0-9]+(-[a-z0-9]+)+$` (lower-case, hyphens, no spaces); the memo is not created, that is the evidence script's job.
+- SC-101 One active case at a time: a folder under a configured root (`root ~/Pictures/scapture`). The menu bar item shows `<case-id>  n` where n is the number of captures in the folder; the item shows a neutral icon when no case is active, and every capture is refused until one is.
+- SC-102 Case picker (`hotkey_case`, default `ctrl-shift-space`): a floating panel with fuzzy search over all case folders under the root, `j`/`k` or arrows to move, `Enter` to pick, `Esc` to cancel; most recent cases first.
+- SC-103 New case from the picker: typing an id that does not exist and pressing `cmd-Enter` creates the folder after validating `^[a-z0-9]+(-[a-z0-9]+)*$` (lower-case letters and digits joined by hyphens; `poc-` is the evidence procedure's prefix, recommended, not required); the memo is not created, that is the evidence script's job.
 - SC-104 The active case, the last used profile and the last area are persisted in `state.json` and restored on launch.
 - SC-105 Open the active case in Finder, sView or sNotate from the menu (`o`, `v`, `n` in the menu's key column); the step count refreshes through a folder watch when files are deleted or renamed by the script.
 
@@ -35,8 +35,8 @@ The reason sCapture exists. A profile is a block in `~/.config/scapture/profiles
 - SC-301 (P0) Profile fields: `app` (bundle id or name of the target, or `frontmost` for whatever app is in front, as `postitioning-window` does), `window` (title substring, optional, else frontmost of that app), `origin` and `size` of the window in points, `inset` (top left bottom right in points cut off the window, default none), `scale` 1 or 2, `name` pattern, `post` command (optional). Example `profile console-chrome`, Guide-Shot-BMP's geometry: `app com.google.Chrome`, `origin 200 50`, `size 1520 980`, `inset 87 1 1 1` (title bar, tabs and address bar; the window border), `scale 2`, which writes 3036 x 1784.
 - SC-302 (P0) Position the target window to the profile's origin and size before capturing (`hotkey_position`, default `ctrl-shift-p`, and automatically before a window capture when `auto_position true`), through the Accessibility API; if the app refuses (fixed-size window), the capture proceeds and the toast says so.
 - SC-303 (P0) Fixed scale: the capture is rendered at `(size - inset) x scale` pixels regardless of the display's backing scale, so 1x and 2x displays produce identical files; a warning is logged when upsampling from a 1x display to scale 2.
-- SC-304 (P1) Profile switch from the menu or `ctrl-shift-1..9`; the active profile name shows next to the case id in the menu bar.
-- SC-305 (P1) Per-case profile memory: the first capture of a case records the profile in `state.json`, and switching back to that case restores it, so a PoC never mixes geometries.
+- SC-304 (P1) Profile switch from the menu or `ctrl-alt-1..9` (`ctrl-shift-3` and `ctrl-shift-4` belong to display and area capture); the active profile name shows next to the case id in the menu bar.
+- SC-305 (P1) Per-case profile memory: the first capture of a case records the profile in `state.json`, and switching back to that case restores it, so a case never mixes geometries.
 - SC-306 (P2) Guard: if a capture's pixel size differs from the other files in the case folder, the toast shows a warning and the file name gets no special mark (the files stay honest; the author decides).
 - SC-307 (P1) Origin relative to a display: `display main|external|<name>` in a profile makes `origin` relative to that display's top-left, so one profile works on the laptop display alone and with an external display beside or above it. The Guide-Shot scripts carry the same geometry at a separate global origin for each display arrangement.
 - SC-308 (P2) Content rect from the page: for a browser, take the rect of the web area (`AXWebArea`) instead of a fixed inset, so a restore banner, an info bar or the bookmarks bar never ends up in the capture. With the fixed inset of Guide-Shot and the PoC, Chrome's "Continue where you left off" bar was captured as the top 56 points of the page.
