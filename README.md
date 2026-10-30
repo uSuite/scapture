@@ -43,7 +43,14 @@ From then on that copy opens like any app; each new version you download asks on
 
 sCapture needs Screen Recording to capture (macOS asks on first launch) and Accessibility to place windows (asked the first time a profile places one; without it the window is captured where it is). Both are in System Settings > Privacy & Security; the menu has a row for each one that is missing, and Settings… shows both with a button to each pane.
 
-macOS ties both grants to the app's signature. An ad hoc signed update is a new signature, so after every update remove sCapture from both lists and add it again (or switch it off and on), then quit and reopen it. This goes away once releases are notarised.
+macOS ties both grants to the app's signature and keeps one entry per app for each. An ad hoc signed update is a new signature, and the list can still show sCapture switched on while its entry belongs to the old version. So after every update, quit sCapture and clear both entries in Terminal:
+
+```bash
+tccutil reset ScreenCapture io.github.usuite.scapture
+tccutil reset Accessibility io.github.usuite.scapture
+```
+
+Then open sCapture and allow both again when macOS asks, or from Settings…. Removing sCapture from the lists and adding it again in System Settings looks the same, but it does not always replace the old entry. This goes away once releases are notarised.
 
 ## Use
 
@@ -71,6 +78,8 @@ scale 2
 ## Build
 
 `make test`, `make app`, `make run`, `make smoke` (needs Screen Recording for the built app). Swift 6.2 and macOS 26 or newer, Apple frameworks only, shared code from [scommon](https://github.com/uSuite/scommon). The design lives in [docs/02-tech-stack.md](docs/02-tech-stack.md), the backlog in [docs/01-backlog.md](docs/01-backlog.md), the plan in [docs/03-roadmap.md](docs/03-roadmap.md) and the decisions in [docs/DECISIONS.md](docs/DECISIONS.md). `scripts/poc.sh` is the shell proof of concept the app grew from.
+
+A copy you build has the same app id as an installed one, so the two share those permission entries and only one of them holds the grants at a time: run both `tccutil reset` lines above when you switch between them. `make app` signs with your Apple Development certificate when you have one, so rebuilding keeps the grants.
 
 ## Licence
 
