@@ -4,6 +4,7 @@ Versions follow semver. Each release lists what a user notices; docs/DECISIONS.m
 
 ## Unreleased
 
+- Paste works in New Case… and in the Settings fields, with cmd-V or from another app such as sPaste: the app now has the hidden Edit menu that carries cut, copy, paste, select all and undo.
 - The Settings window's permissions note says to reset both entries with `tccutil reset` after an update, then allow them again; removing and adding sCapture in System Settings did not always replace the old entry.
 
 ## 0.1.1 (2026-10-31)
