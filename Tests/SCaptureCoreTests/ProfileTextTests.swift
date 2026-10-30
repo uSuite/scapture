@@ -43,8 +43,21 @@ struct ProfileTextTests {
         #expect(parsed.issues.isEmpty)
         #expect(parsed.profiles.map(\.name) == ["front-window", "console"])
         #expect(parsed.profiles[1] == changed)
-        #expect(text.hasSuffix("# Chrome without its title bar, tabs and address bar: 3036 x 1784\nprofile console\napp com.google.Chrome\ninset 87 1 1 1\nscale 2\nwindow Console"))
+        #expect(text.hasSuffix("# Chrome without its title bar, tabs and address bar: 3036 x 1784\nprofile console\napp com.google.Chrome\nwindow Console\ninset 87 1 1 1\nscale 2"))
         #expect(text.hasPrefix(Profiles.defaultText.components(separatedBy: "# Chrome without")[0]))
+    }
+
+    @Test func addedKeysGoInTheUsualOrder() {
+        let front = Profiles.parse(Profiles.defaultText).profiles[0]
+        let placed = front.fitted(to: CGRect(x: 10, y: 20, width: 800, height: 600))
+        let text = Profiles.replacing("front-window", with: placed, in: Profiles.defaultText)
+        #expect(text.contains("profile front-window\napp frontmost\norigin 10 20\nsize 800 600\nscale 2\n"))
+        let bare = "profile a\n# keep\nscale 1"
+        var only = Profile(name: "a")
+        only.scale = 1
+        only.app = .name("Safari")
+        #expect(Profiles.replacing("a", with: only, in: bare) == "profile a\napp Safari\n# keep\nscale 1")
+        #expect(Profiles.replacing("a", with: only, in: "profile a\n# nothing yet") == "profile a\napp Safari\nscale 1\n# nothing yet")
     }
 
     @Test func replacingKeepsCommentsAndUnknownLinesInTheBlock() {
