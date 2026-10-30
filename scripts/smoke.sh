@@ -79,5 +79,8 @@ names=($work/root/poc-smoke-step/*.png(N:t))
 [[ $names == "poc-smoke-step-01.png poc-smoke-step-02.png" ]] || fail "case-step names $names"
 [[ -z $(ls -A $work/root/poc-smoke-step | grep '^\.') ]] || fail "a temporary file was left behind"
 
+[[ -s $out/timestamp/settings.png ]] || fail "the app wrote no settings.png"
+[[ $(pixels $out/timestamp/settings.png) != 0x0 ]] || fail "settings.png is empty"
+print "smoke: settings window $(pixels $out/timestamp/settings.png)"
 cp $work/root/poc-smoke-time/*.png $out/
 print "smoke: passed, captures copied to $out"

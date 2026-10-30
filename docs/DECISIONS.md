@@ -89,3 +89,7 @@ Supersedes `ctrl-shift-1..9` of SC-304. Why: the backlog also gives `ctrl-shift-
 ## 2026-10-30 case-step numbers start at 01
 
 Why: the toast says `step 07` for the seventh capture, and a human counts from one; SC-402 said only "highest existing number plus one". An evidence script that numbers from 00 keeps doing so in its own rename; sCapture never renumbers.
+
+## 2026-10-30 A Settings window, as sPaste's
+
+Why: Sam asked for it after 0.1.0 shipped; editing a text file is fine for keys and profiles, less so for a folder or a yes or no, and the permission state is easier to read in a window than in menu rows. It follows sPaste's: an `@Observable` model, each control writes one line through `ConfigPaths.persist` with the text `Config.text(for:)` gives, so the config file stays the truth and keeps its comments; the window refreshes when it becomes key, so a grant made in System Settings shows on return. Profiles and the keymap stay text files, opened from the window. Rules out: settings that live only in the app (`UserDefaults`).
