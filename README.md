@@ -55,7 +55,7 @@ Then open sCapture and allow both again when macOS asks, or from Settings…. Re
 ## Use
 
 1. Make a case: menu > New Case…, a lower-case id such as `poc-demo-vm-stop`. Cases are the folders under the root (`~/Pictures/scapture` by default); the menu lists them, newest first, and picks one as active.
-2. Pick a profile in the menu, or with `ctrl-alt-1` to `ctrl-alt-9`. `front-window` captures whatever window is in front at 2x; `console-chrome` places Chrome and leaves out its title bar, tabs and address bar.
+2. Pick a profile in the menu, or with `ctrl-alt-1` to `ctrl-alt-9`. `front-window` captures whatever window is in front at 2x; `console-chrome` places Chrome and leaves out its title bar, tabs and address bar. Edit Profiles… opens the Profiles window to change them or make your own.
 3. Press `ctrl-shift-5`. The window snaps to the profile's frame, the captured rect flashes, and a toast shows the thumbnail, the step number and the pixel size; click it to open the capture in sNotate or sView. `ctrl-shift-r` captures the same window again.
 
 The menu bar shows `<case>  <count>  <profile>`. The full key list is in [docs/keys.md](docs/keys.md); every capture is a line in `~/.config/scapture/log`.
@@ -74,6 +74,8 @@ scale 2
 ```
 
 `app` is a bundle id, an app name or `frontmost`; `window` (optional) is part of the window title. `origin` and `size` place the window, in points from the top-left of the main display; without them the window is captured where and as it is. `inset` cuts points off the top, left, bottom and right. The output is always `(size - inset) x scale` pixels, here 3036 x 1784, whatever the display. Problems in any file are listed in the menu.
+
+Edit Profiles… in the menu opens the same profiles as a list and a form. A change is written into that profile's block when you press Return or leave the field, and the rest of the file, comments included, stays as it was. To try a profile before you use it: Use Current Window takes the origin and size from where its window is now, Place moves the window there (Accessibility), and Test Capture shows what the capture key would take, at its pixel size, without saving it (Screen Recording).
 
 ## Build
 

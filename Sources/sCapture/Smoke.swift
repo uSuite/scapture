@@ -3,8 +3,9 @@ import SCaptureCore
 
 /// `SCAPTURE_SMOKE=<folder>`: opens a test window, captures it once with
 /// every profile into the active case, writes one line per capture to
-/// `<folder>/state.txt`, a picture of the Settings window to
-/// `<folder>/settings.png`, and quits (SC-602). `scripts/smoke.sh` sets up the
+/// `<folder>/state.txt`, a test capture of the first profile to
+/// `<folder>/test.txt`, pictures of the Settings and Profiles windows to
+/// `<folder>/settings.png` and `profiles.png`, and quits (SC-602). `scripts/smoke.sh` sets up the
 /// config, case and profiles and checks the files.
 @MainActor
 final class Smoke {
@@ -55,6 +56,16 @@ final class Smoke {
                 }
             }
             try? FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+            if let first = profiles.first {
+                var line: String
+                do throws(CaptureError) {
+                    let result = try await service.test(first, config: config)
+                    line = "\(first.name)\t\(result.pixels)"
+                } catch {
+                    line = "\(first.name)\terror\t\(error.description)"
+                }
+                try? Data((line + "\n").utf8).write(to: output.appendingPathComponent("test.txt"))
+            }
             let permissions = "screen-recording \(Permissions.screenRecording ? "yes" : "no")\naccessibility \(Permissions.accessibility ? "yes" : "no")\n"
             try? Data(permissions.utf8).write(to: output.appendingPathComponent("permissions.txt"))
             await finish()

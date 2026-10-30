@@ -21,6 +21,7 @@ final class SettingsModel {
     @ObservationIgnored var current: () -> (config: Config, issues: [String]) = { (Config(), []) }
     /// Reloads the files into the app after a write.
     @ObservationIgnored var onWrite: () -> Void = {}
+    @ObservationIgnored var openProfiles: () -> Void = {}
 
     init(paths: ConfigPaths) {
         self.paths = paths
@@ -229,7 +230,10 @@ struct SettingsView: View {
                         .textSelection(.enabled)
                 }
                 HStack {
-                    Button("Edit Profiles") {
+                    Button("Edit Profiles…") {
+                        model.openProfiles()
+                    }
+                    Button("Profiles File") {
                         NSWorkspace.shared.open(model.profilesURL)
                     }
                     Button("Edit Keymap") {
