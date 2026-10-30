@@ -1,10 +1,10 @@
 # sCapture: technology stack
 
-Same foundation as its siblings: Swift 6.2, Apple frameworks only, macOS 26 Tahoe, Xcode 26, XcodeGen project, Makefile, config in `~/.config/scapture/`, shared code from `../scommon`. sCapture is the smallest of the three: a menu bar agent, a capture pipeline and a CLI. Status: proposed 2026-10-25, decisions in `DECISIONS.md`.
+Same foundation as its siblings: Swift 6.2, Apple frameworks only, macOS 26 Tahoe, Xcode 26, a Makefile that wraps the SwiftPM build into the app bundle (`scripts/bundle.sh`), config in `~/.config/scapture/`, shared code from `../scommon`. sCapture is the smallest of the three: a menu bar agent, a capture pipeline and a CLI. Status: proposed 2026-10-25, 0.1.0 built 2026-10-30 without the picker panel, area capture and CLI (see `03-roadmap.md`); decisions in `DECISIONS.md`.
 
 ## What it looks like
 
-Nothing, most of the time. A menu bar item reading `poc-demo-vm-stop  7` (case id, capture count) and, when a profile is active, `console-chrome` in a lighter weight after it. Press the hotkey: the Chrome window snaps to the profile's frame if it is not there already, the screen flashes on that rectangle for 150 ms, a thumbnail toast slides in at the corner with `step 08  3036x1784` and fades. Press `ctrl-shift-space`: a Shottr-sized floating panel with a text field and a list of case folders, fuzzy filtered as you type, `j`/`k`, `Enter`. That is the whole UI. The feel borrows from Shottr (instant, silent, no window), the keys from sView and sNotate (same keymap grammar, same `j`/`k` in lists), the folder discipline from the evidence procedure.
+Nothing, most of the time. A menu bar item reading `poc-demo-vm-stop  7` (case id, capture count) and, when a profile is active, `console-chrome` in a lighter weight after it. Press the hotkey: the Chrome window snaps to the profile's frame if it is not there already, the screen flashes on that rectangle for 150 ms, a thumbnail toast slides in at the corner with `step 08  3036x1784` and fades. Press `ctrl-shift-space`: in 0.1.0 the menu opens with the cases and profiles; from 0.2.0 a Shottr-sized floating panel with a text field and a list of case folders, fuzzy filtered as you type, `j`/`k`, `Enter`. That is the whole UI. The feel borrows from Shottr (instant, silent, no window), the keys from sView and sNotate (same keymap grammar, same `j`/`k` in lists), the folder discipline from the evidence procedure.
 
 ## Frameworks
 
@@ -14,7 +14,7 @@ Nothing, most of the time. A menu bar item reading `poc-demo-vm-stop  7` (case i
 | Window geometry | Accessibility API (`AXUIElement`, `kAXPositionAttribute`, `kAXSizeAttribute`) | Needs the Accessibility permission; the only part that does. Area and display capture work without it. |
 | Window identity | `CGWindowListCopyWindowInfo` and `NSRunningApplication` | Match the profile's app bundle id and optional title substring; pick the frontmost window of that app. |
 | Hotkeys | Carbon `RegisterEventHotKey` | Works without Accessibility, which `NSEvent` global monitors need. Deprecated for years but present in 26; wrapped in one file so a replacement is a local change. |
-| Menu bar | SwiftUI `MenuBarExtra` with `.menu` style, `LSUIElement` true | Menu items are generated from the Command list, keys shown. |
+| Menu bar | AppKit `NSStatusItem` with an `NSMenu` rebuilt each time it opens, `LSUIElement` true | Text next to a template icon; items run Commands and show their global keys. `MenuBarExtra` was the first plan (DECISIONS). |
 | Picker and toast | `NSPanel` (non-activating, floating) hosting SwiftUI views | A non-activating panel keeps the target app frontmost, which matters for the capture that follows. |
 | Flash | A borderless transparent `NSWindow` over the captured rect, faded with Core Animation | 150 ms, no sound. |
 | PNG | ImageIO `CGImageDestination` | sRGB, DPI from scale, no other metadata, atomic write (temp file then `rename`). |
@@ -25,7 +25,7 @@ Nothing, most of the time. A menu bar item reading `poc-demo-vm-stop  7` (case i
 ## Architecture
 
 ```
-App     sCaptureApp.swift (MenuBarExtra), permissions, hotkey registration, CLI entry, socket
+App     main.swift, AppDelegate (NSStatusItem and menu), permissions, hotkey registration; CLI entry and socket from 0.2.0
 UI      CasePicker (NSPanel + SwiftUI), Toast, Flash, AreaSelector (crosshair overlay)
 Core    SCaptureCore library:
           ActiveCase       root scan (scommon), validation, counts, state
@@ -43,7 +43,7 @@ Core depends on Foundation, CoreGraphics and ImageIO; ScreenCaptureKit and Acces
 
 ## Configuration
 
-`~/.config/scapture/`: `config` (`root ~/Pictures/scapture`, `name timestamp|case-step`, `delay 3`, `auto_position true`, `flash true`, `toast 2`), `keymap` (`ctrl-shift-4 capture-area`, `ctrl-shift-5 capture-window`, `ctrl-shift-r capture-repeat`, `ctrl-shift-space pick-case`, `ctrl-shift-p position`), `profiles` (blocks: `profile console-chrome`, `app com.google.Chrome`, `origin 0 25`, `size 1518 892`, `scale 2`, `post open -a sNotate "$FILE"`), `state.json` (disposable), `log` (append only).
+`~/.config/scapture/`: `config` (`root ~/Pictures/scapture`, `name timestamp|case-step`, `auto_position yes`, `settle_ms 150`, `flash yes`, `toast 2`; `delay 3` from 0.2.0), `keymap` (`ctrl-shift-5 capture-window`, `ctrl-shift-r capture-repeat`, `ctrl-shift-p position`, `ctrl-shift-space open-menu`, `ctrl-shift-o open-case`, `ctrl-alt-1 profile 1`; `ctrl-shift-4 capture-area` from 0.2.0), `profiles` (blocks: `profile console-chrome`, `app com.google.Chrome`, `origin 200 50`, `size 1520 980`, `inset 87 1 1 1`, `scale 2`; `post open -a sNotate "$FILE"` from 0.2.0), `state.json` (disposable), `log` (append only, tab-separated).
 
 ## Phase 0 proof of concept, before any Swift
 
