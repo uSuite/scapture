@@ -24,6 +24,10 @@ let package = Package(
             name: "SCaptureCore",
             targets: ["SCaptureCore"]
         ),
+        .executable(
+            name: "sCapture",
+            targets: ["sCapture"]
+        ),
     ],
     dependencies: [
         scommon
@@ -36,6 +40,13 @@ let package = Package(
                     name: "SCommon",
                     package: "scommon"
                 )
+            ]
+        ),
+        .executableTarget(
+            name: "sCapture",
+            dependencies: ["SCaptureCore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v5)
             ]
         ),
         .testTarget(
