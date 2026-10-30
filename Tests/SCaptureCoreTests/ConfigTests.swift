@@ -112,3 +112,39 @@ struct CommandTests {
         #expect(Hotkey.parse("shift-ctrl-5")!.description == "ctrl-shift-5")
     }
 }
+
+struct ConfigTextTests {
+    @Test func keysAreTheDefaultFilesOrder() {
+        let defaults = KeyValueParser.parse(Config.defaultText).map(\.key)
+        #expect(Config.keys == defaults)
+    }
+
+    @Test func textRoundTripsEveryKey() throws {
+        var config = Config()
+        config.root = "/Volumes/cases"
+        config.name = .caseStep
+        config.autoPosition = false
+        config.settleMilliseconds = 400
+        config.flash = false
+        config.toastSeconds = 5
+        for key in Config.keys {
+            var copy = Config()
+            try copy.set(key, try #require(config.text(for: key)))
+            #expect(copy.text(for: key) == config.text(for: key), "\(key)")
+            #expect(Config().text(for: key) != config.text(for: key), "\(key)")
+        }
+        #expect(config.text(for: "colour") == nil)
+    }
+
+    @Test func persistRewritesOneLine() throws {
+        let temp = try TempFolder()
+        let paths = ConfigPaths(directory: temp.url)
+        try paths.ensureDefaults(config: Config.defaultText, keymap: "")
+        var changed = Config()
+        changed.name = .caseStep
+        try paths.persist("name", try #require(changed.text(for: "name")), as: Config.self)
+        let text = try String(contentsOf: paths.config, encoding: .utf8)
+        #expect(Config.parse(text).config == changed)
+        #expect(text.components(separatedBy: "\n").count == Config.defaultText.components(separatedBy: "\n").count)
+    }
+}
