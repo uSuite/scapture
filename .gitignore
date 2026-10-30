@@ -1,0 +1,18 @@
+# macos stuff
+.DS_Store
+
+
+# swift and xcode
+.build/
+.swiftpm/
+build/
+DerivedData/
+sCapture.xcodeproj/
+xcuserdata/
+*.xcuserstate
+
+# scratch PoCs are throwaway
+scratch/
+
+# working notes and private references, kept beside the repo but never published
+docs/local/

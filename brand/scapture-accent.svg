@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- sCapture: a reticle, a thin circle with four ticks, centred on the s's
+       upper terminal. Deep green rather than white, so it reads over the white
+       stroke without cutting the s, and stays clear of the terminal cap. -->
+  <g fill="none" stroke="#0b5c3a" stroke-width="24" stroke-linecap="round">
+    <circle cx="627" cy="355" r="104"/>
+    <path d="M 627 281 V 195 M 701 355 H 787 M 627 429 V 515 M 553 355 H 467"/>
+  </g>
+</svg>
