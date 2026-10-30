@@ -61,3 +61,31 @@ Supersedes the example root, case id and profile name used so far, and the `scri
 ## 2026-10-30 sCapture's icon layers are in brand/
 
 Why: the family rules (scommon's `brand/README.md`) give sCapture green `#1fbf75` to `#15895a` with a reticle on the s's upper terminal; the layers are drawn now so the Swift phase starts with its icon. The reticle is deep green `#0b5c3a`, not white, so it does not cut the white s apart. `brand/scapture-1024.png` is rendered by scommon's `brand/render.swift`; the menu bar template image comes with the menu bar app.
+
+## 2026-10-30 Revised plan for a public repository: 0.1.0 ships window capture first
+
+Supersedes the four-phase plan to `v0.1.0` (the local session plan). Why: the repository is public and the Swift app should be installable early; window capture into the active case is the one job nothing else does. 0.1.0 is the core library, ScreenCaptureKit window capture, Accessibility placement, the menu bar item and its menu as the case picker, global keys, flash, toast and log; the picker panel, area, display and timed capture and the CLI move to 0.2.0, display-relative origins and the browser content rect to 0.3.0. The public plan is `docs/03-roadmap.md`. The shell PoC week with a Shortcuts hotkey was skipped by choice. Rules out: holding the first release for the whole backlog.
+
+## 2026-10-30 A case is any lower-case hyphenated folder under the root
+
+Supersedes the `^poc-...` validation of SC-101 to SC-103. Why: the evidence procedure is one use of sCapture; a public user documents any procedure. A case id is lower-case letters and digits joined by hyphens (`^[a-z0-9]+(-[a-z0-9]+)*$`), `poc-` stays the recommended prefix for evidence. Consequence: scommon needs no new case validator; `FolderScanner` lists the folders and `PocCase` stays sNotate's. Rules out: spaces, capitals and underscores in case ids.
+
+## 2026-10-30 AppKit status item instead of SwiftUI MenuBarExtra
+
+Supersedes the `MenuBarExtra` row of the stack. Why: the item shows text (case, count, profile in a lighter colour) next to a template icon, the menu is rebuilt each time it opens from the live folder list, and `ctrl-shift-space` opens it through `performClick`; an `NSStatusItem` does all three directly, and sPaste made the same choice the same day. Rules out: a SwiftUI `App` scene for the agent.
+
+## 2026-10-30 The app bundle is built from SwiftPM, no Xcode project
+
+Supersedes `make gen` and the XcodeGen project of the stack entry. Why: `scripts/bundle.sh` wraps the `swift build` product into `build/sCapture.app` on any machine with the Command Line Tools, as sPaste does; one Package.swift, no generated project to keep in step. Rules out: `project.yml`.
+
+## 2026-10-30 Local builds keep their permissions, releases are ad hoc
+
+Why: macOS ties the Screen Recording and Accessibility grants to the signature, and an ad hoc signature changes with every build, so every `make app` would ask again. `make app` signs with the first Apple Development certificate in the keychain when there is one (`SIGN_IDENTITY` overrides it); `make release` always signs ad hoc, and the README tells users to grant both permissions again after each update until releases are notarised.
+
+## 2026-10-30 Profile keys are ctrl-alt-1 to ctrl-alt-9
+
+Supersedes `ctrl-shift-1..9` of SC-304. Why: the backlog also gives `ctrl-shift-3` to display capture and `ctrl-shift-4` to area capture; the profile keys move to `ctrl-alt-` so the two sets never collide. `ctrl-shift-space` opens the menu until the picker panel exists.
+
+## 2026-10-30 case-step numbers start at 01
+
+Why: the toast says `step 07` for the seventh capture, and a human counts from one; SC-402 said only "highest existing number plus one". An evidence script that numbers from 00 keeps doing so in its own rename; sCapture never renumbers.
