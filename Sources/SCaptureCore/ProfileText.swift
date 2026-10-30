@@ -42,9 +42,10 @@ extension Profile {
 extension Profiles {
     /// `text` with the block of `name` rewritten for `profile`: the header
     /// renamed, each key line changed in place, a key now unset dropped, a new
-    /// key added after the block's last key line. Comments, blank lines and
-    /// unknown lines stay; other blocks are untouched. Unchanged when no block
-    /// has that name.
+    /// key put after the keys that come before it in the usual order (`app`,
+    /// `window`, `origin`, `size`, `inset`, `scale`). Comments, blank lines
+    /// and unknown lines stay; other blocks are untouched. Unchanged when no
+    /// block has that name.
     public static func replacing(
         _ name: String,
         with profile: Profile,
@@ -56,37 +57,53 @@ extension Profiles {
         }
         var wanted: [String: String] = [:]
         for line in profile.lines {
-            let entry = KeyValueParser.parse(line)[0]
-            wanted[entry.key] = line
+            wanted[key(line)!] = line
         }
-        var output = Array(file.lines[..<block.header])
-        output.append("profile \(profile.name)")
+        var body: [String] = []
         var used: Set<String> = []
-        var insertAt = output.count
-        for index in (block.header + 1)..<block.end {
-            let line = file.lines[index]
-            guard let entry = KeyValueParser.parse(line).first else {
-                output.append(line)
+        for line in file.lines[(block.header + 1)..<block.end] {
+            guard let key = key(line), Profile.keys.contains(key) else {
+                body.append(line)
                 continue
             }
-            if Profile.keys.contains(entry.key) {
-                guard let replacement = wanted[entry.key], !used.contains(entry.key) else {
-                    continue
-                }
-                used.insert(entry.key)
-                output.append(replacement)
-            } else {
-                output.append(line)
+            if let replacement = wanted[key], !used.contains(key) {
+                used.insert(key)
+                body.append(replacement)
             }
-            insertAt = output.count
         }
-        let added = profile.lines.filter { line in
-            !used.contains(KeyValueParser.parse(line)[0].key)
+        for line in profile.lines where !used.contains(key(line)!) {
+            body.insert(line, at: place(of: key(line)!, in: body))
         }
-        output.insert(contentsOf: added, at: insertAt)
-        output += file.lines[block.end...]
-        file.lines = output
+        file.lines = Array(file.lines[..<block.header]) + ["profile \(profile.name)"] + body + Array(file.lines[block.end...])
         return file.text
+    }
+
+    /// Where a new `key` line goes in a block's body: after the last known
+    /// key that comes before it, else above the first that comes after it and
+    /// its comment, else after the body's last key line.
+    private static func place(
+        of key: String,
+        in body: [String]
+    ) -> Int {
+        let rank = Profile.keys.firstIndex(of: key)!
+        let ranks = body.map { line in
+            Self.key(line).flatMap { Profile.keys.firstIndex(of: $0) }
+        }
+        if let before = ranks.lastIndex(where: { $0 != nil && $0! < rank }) {
+            return before + 1
+        }
+        if var after = ranks.firstIndex(where: { $0 != nil && $0! > rank }) {
+            // above the comment that belongs to that key, not between them
+            while after > 0, body[after - 1].trimmingCharacters(in: .whitespaces).hasPrefix("#") {
+                after -= 1
+            }
+            return after
+        }
+        return (body.lastIndex { Self.key($0) != nil } ?? -1) + 1
+    }
+
+    private static func key(_ line: String) -> String? {
+        KeyValueParser.parse(line).first?.key
     }
 
     /// `text` with a new block for `profile` at the end, after a blank line.

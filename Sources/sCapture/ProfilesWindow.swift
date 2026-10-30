@@ -26,6 +26,8 @@ final class ProfilesModel {
     @ObservationIgnored var onWrite: () -> Void = {}
     @ObservationIgnored private var text = ""
     @ObservationIgnored private var saved: Profile?
+    /// The profile the draft was loaded from; a rename not yet saved keeps it.
+    @ObservationIgnored private var loaded: String?
     /// The app in front before this window, for profiles of the front app.
     @ObservationIgnored private var lastApp: NSRunningApplication?
     @ObservationIgnored private var observer: NSObjectProtocol?
@@ -101,7 +103,8 @@ final class ProfilesModel {
         return "\(pixels.width) x \(pixels.height) pixels"
     }
 
-    /// Reads the file; a draft with no uncommitted change follows it.
+    /// Reads the file. The draft follows it unless it holds a change not yet
+    /// saved, such as a name the parser refused.
     func refresh() {
         text = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
         profiles = Profiles.parse(text).profiles
@@ -109,9 +112,10 @@ final class ProfilesModel {
             selection = profiles.first?.name
         }
         let current = profiles.first { $0.name == selection }
-        if saved == nil || draft == saved || draft.name != selection {
+        if loaded != selection || draft == saved {
             draft = current ?? Profile(name: "")
             appText = draft.app.description
+            loaded = selection
         }
         saved = current
     }
@@ -119,7 +123,7 @@ final class ProfilesModel {
     func select(_ name: String?) {
         commit()
         selection = name
-        saved = nil
+        loaded = nil
         refresh()
         issues = []
     }
@@ -138,6 +142,7 @@ final class ProfilesModel {
         let changed = Profiles.replacing(name, with: draft, in: text)
         // a renamed profile stays selected through the reload
         selection = draft.name
+        loaded = draft.name
         write(changed, "saved \(draft.name)")
     }
 
@@ -262,7 +267,6 @@ final class ProfilesModel {
         } catch {
             status = error.localizedDescription
         }
-        saved = nil
         refresh()
     }
 
