@@ -2,7 +2,7 @@
 
 Versions follow semver. Each release lists what a user notices; docs/DECISIONS.md has the reasoning.
 
-## Unreleased
+## 0.1.1 (2026-10-31)
 
 - Settings… in the menu (cmd-,) opens a Settings window: the root folder with a folder picker, the file name style, placing the window before a capture and the wait after a move, the flash, the toast, launch at login. Each control writes one line of `~/.config/scapture/config`, so the file stays the truth.
 - The same window shows whether Screen Recording and Accessibility are allowed, with a button to each System Settings pane, lists the problems in the config files, and opens the profiles, the keymap and the config folder.
