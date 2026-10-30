@@ -8,8 +8,12 @@ import SCaptureCore
 @MainActor
 final class Windows: WindowResolver, Positioner {
     func resolve(_ profile: Profile) async throws(CaptureError) -> WindowInfo {
-        let app = try Self.app(profile.app)
-        var candidates = Self.list().filter { $0.pid == app.processIdentifier }
+        let apps = try Self.apps(profile.app)
+        let app = apps[0]
+        // every copy of the app counts: a second copy of sCapture, as the
+        // smoke test runs beside an installed one, has the window wanted
+        let pids = Set(apps.map(\.processIdentifier))
+        var candidates = Self.list().filter { pids.contains($0.pid) }
         if let title = profile.window {
             candidates = candidates.filter { $0.title.localizedCaseInsensitiveContains(title) }
         }
@@ -53,18 +57,18 @@ final class Windows: WindowResolver, Positioner {
         !window.title.isEmpty && window.frame.width >= 160 && window.frame.height >= 120
     }
 
-    private static func app(_ target: AppTarget) throws(CaptureError) -> NSRunningApplication {
+    private static func apps(_ target: AppTarget) throws(CaptureError) -> [NSRunningApplication] {
         let apps = NSWorkspace.shared.runningApplications
-        let found: NSRunningApplication?
+        let found: [NSRunningApplication]
         switch target {
         case .frontmost:
-            found = NSWorkspace.shared.frontmostApplication
+            found = NSWorkspace.shared.frontmostApplication.map { [$0] } ?? []
         case .bundleID(let id):
-            found = apps.first { $0.bundleIdentifier == id }
+            found = apps.filter { $0.bundleIdentifier == id }
         case .name(let name):
-            found = apps.first { $0.localizedName?.caseInsensitiveCompare(name) == .orderedSame }
+            found = apps.filter { $0.localizedName?.caseInsensitiveCompare(name) == .orderedSame }
         }
-        guard let found else {
+        guard !found.isEmpty else {
             throw .appNotRunning(target.description)
         }
         return found
