@@ -81,7 +81,7 @@ Edit Profiles… in the menu opens the same profiles as a list and a form. A cha
 
 `make test`, `make app`, `make run`, `make smoke` (needs Screen Recording for the built app). Swift 6.2 and macOS 26 or newer, Apple frameworks only, shared code from [scommon](https://github.com/uSuite/scommon). The design lives in [docs/02-tech-stack.md](docs/02-tech-stack.md), the backlog in [docs/01-backlog.md](docs/01-backlog.md), the plan in [docs/03-roadmap.md](docs/03-roadmap.md) and the decisions in [docs/DECISIONS.md](docs/DECISIONS.md). `scripts/poc.sh` is the shell proof of concept the app grew from.
 
-A copy you build has the same app id as an installed one, so the two share those permission entries and only one of them holds the grants at a time: run both `tccutil reset` lines above when you switch between them. `make app` signs with your Apple Development certificate when you have one, so rebuilding keeps the grants.
+A copy you build has the same app id as an installed one, so the two share those permission entries and only one of them holds the grants at a time. While a copy is in Applications, System Settings gives the grants to that copy, even when the request comes from the one you built; to test a built copy with its own grants, quit the installed one, move it out of Applications, run both `tccutil reset` lines above, then open the built copy and allow both. `make app` signs with your Apple Development certificate when you have one, so rebuilding keeps the grants.
 
 ## Licence
 
