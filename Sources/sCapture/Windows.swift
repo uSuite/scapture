@@ -9,14 +9,13 @@ import SCaptureCore
 final class Windows: WindowResolver, Positioner {
     func resolve(_ profile: Profile) async throws(CaptureError) -> WindowInfo {
         let app = try Self.app(profile.app)
-        let candidates = Self.list().filter { $0.pid == app.processIdentifier }
-        let match: WindowInfo?
+        var candidates = Self.list().filter { $0.pid == app.processIdentifier }
         if let title = profile.window {
-            match = candidates.first { $0.title.localizedCaseInsensitiveContains(title) }
-        } else {
-            match = candidates.first
+            candidates = candidates.filter { $0.title.localizedCaseInsensitiveContains(title) }
         }
-        guard let match else {
+        // apps keep small untitled helper windows in front of their real ones
+        // (Chrome has several), so a titled window of a usable size wins
+        guard let match = candidates.first(where: Self.isDocument) ?? candidates.first else {
             throw .noWindow(app: app.localizedName ?? profile.app.description, title: profile.window)
         }
         return match
@@ -48,6 +47,10 @@ final class Windows: WindowResolver, Positioner {
             throw .placeRefused(window.app)
         }
         return placed.frame
+    }
+
+    static func isDocument(_ window: WindowInfo) -> Bool {
+        !window.title.isEmpty && window.frame.width >= 160 && window.frame.height >= 120
     }
 
     private static func app(_ target: AppTarget) throws(CaptureError) -> NSRunningApplication {
