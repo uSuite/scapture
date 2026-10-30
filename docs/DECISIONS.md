@@ -93,3 +93,12 @@ Why: the toast says `step 07` for the seventh capture, and a human counts from o
 ## 2026-10-30 A Settings window, as sPaste's
 
 Why: Sam asked for it after 0.1.0 shipped; editing a text file is fine for keys and profiles, less so for a folder or a yes or no, and the permission state is easier to read in a window than in menu rows. It follows sPaste's: an `@Observable` model, each control writes one line through `ConfigPaths.persist` with the text `Config.text(for:)` gives, so the config file stays the truth and keeps its comments; the window refreshes when it becomes key, so a grant made in System Settings shows on return. Profiles and the keymap stay text files, opened from the window. Rules out: settings that live only in the app (`UserDefaults`).
+
+## 2026-10-31 A Profiles window that writes the profiles file block by block
+
+Why: Sam asked for a dialog to edit profiles and try them before use; a text file is fine for a few keys, less so for a frame in points and an inset that must be measured. As with Settings, the file stays the truth: `Profiles.replacing` rewrites only the edited block (header, key lines in place, comments and unknown lines kept), and `Profiles.check` parses the result and refuses a change that brings a new issue, so the form and the file never disagree on what is valid. Use Current Window and Place go through the same resolver and positioner as the keys; Test Capture is `CaptureService.test`, the capture path without naming, writing, logging or setting the repeat window. A profile of the front app is tried on the app that was in front before the window, not sCapture. Rules out: profiles kept in the app's own store, or a whole-file rewrite that loses the comments.
+
+## 2026-10-31 A hidden Edit menu
+
+Why: AppKit sends cmd-X, cmd-C, cmd-V, cmd-A and cmd-Z to a text field through the main menu's key equivalents, and an agent (`LSUIElement`) had no main menu, so New Case… took no paste, not even from sPaste, which sends cmd-V. `EditMenu.install()` sets a main menu with an Edit menu that is never shown.
+
