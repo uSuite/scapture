@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var configWatcher: DirectoryWatcher?
     private var caseWatcher: DirectoryWatcher?
     private var busy = false
+    private var settings: SettingsWindowController?
 
     private var profilesURL: URL { paths.directory.appendingPathComponent("profiles") }
     private var store: CaseStore { CaseStore(root: config.rootURL()) }
@@ -52,7 +53,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 store: store,
                 config: config,
                 service: service
-            )
+            ) { [weak self] in
+                await self?.snapshotSettings(to: URL(fileURLWithPath: output, isDirectory: true))
+            }
             return
         }
         hotKeys = HotKeys { [weak self] command in
@@ -117,6 +120,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         watchCase()
         updateTitle()
+        settings?.model.refresh()
     }
 
     private func saveState() {
@@ -447,9 +451,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
+        let settingsItem = action("Settings…") { [weak self] in
+            self?.openSettings()
+        }
+        settingsItem.keyEquivalent = ","
+        settingsItem.keyEquivalentModifierMask = .command
+        menu.addItem(settingsItem)
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         menu.addItem(disabled("sCapture \(version)"))
         menu.addItem(NSMenuItem(title: "Quit sCapture", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+    }
+
+    private func openSettings() {
+        if settings == nil {
+            let model = SettingsModel(paths: paths)
+            model.current = { [weak self] in
+                guard let self else {
+                    return (Config(), [])
+                }
+                return (config, problems)
+            }
+            model.onWrite = { [weak self] in
+                self?.loadSettings()
+            }
+            settings = SettingsWindowController(model: model)
+        }
+        settings?.show()
+    }
+
+    /// Smoke mode: the Settings window as `settings.png`, so its layout is
+    /// checked without a click.
+    private func snapshotSettings(to folder: URL) async {
+        openSettings()
+        try? await Task.sleep(for: .milliseconds(500))
+        guard let view = settings?.window?.contentView,
+            let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds)
+        else {
+            return
+        }
+        view.cacheDisplay(in: view.bounds, to: rep)
+        try? rep.representation(using: .png, properties: [:])?.write(to: folder.appendingPathComponent("settings.png"))
     }
 
     private func profileSummary(_ profile: Profile) -> String {
