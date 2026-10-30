@@ -25,7 +25,7 @@ final class Smoke {
         // the window list's top-left (100, 100), 800 x 600 points
         let window = NSWindow(
             contentRect: .zero,
-            styleMask: [.titled],
+            styleMask: [.titled, .resizable],
             backing: .buffered,
             defer: false
         )
@@ -53,6 +53,8 @@ final class Smoke {
                 }
             }
             try? FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+            let permissions = "screen-recording \(Permissions.screenRecording ? "yes" : "no")\naccessibility \(Permissions.accessibility ? "yes" : "no")\n"
+            try? Data(permissions.utf8).write(to: output.appendingPathComponent("permissions.txt"))
             try? Data((lines.joined(separator: "\n") + "\n").utf8).write(to: output.appendingPathComponent("state.txt"))
             NSApp.terminate(nil)
         }
