@@ -220,7 +220,7 @@ struct SettingsView: View {
             } header: {
                 Text("Permissions")
             } footer: {
-                Text("macOS ties both to the app's signature: after an update, remove sCapture from each list, add it again and reopen it.")
+                Text("macOS ties both to the app's signature. After an update, quit sCapture, run tccutil reset ScreenCapture io.github.usuite.scapture and tccutil reset Accessibility io.github.usuite.scapture in Terminal, then reopen it and allow both.")
                     .foregroundStyle(.secondary)
             }
             Section {
