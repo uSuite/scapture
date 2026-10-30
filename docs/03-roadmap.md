@@ -6,7 +6,7 @@ Where sCapture is going, release by release, with the backlog ids (SC-xxx) from 
 
 `scripts/poc.sh` places a window, captures its kept rect into the active case at a fixed scale and prints the step count. It proved the workflow, gave the timing baseline (about 280 ms a shot) and found the naming rule for same-second captures. It stays in the tree until the `scapture` CLI replaces it.
 
-## 0.1.0: window capture from the menu bar (this release)
+## 0.1.0: window capture from the menu bar (done)
 
 The smallest app worth installing: one key puts the profile's window, at its size and scale, into the active case.
 
@@ -18,6 +18,10 @@ The smallest app worth installing: one key puts the profile's window, at its siz
 - Flash and thumbnail toast, capture log, permissions asked once (SC-403, SC-405, SC-504).
 - Config, keymap and profiles as plain text, reloaded on change (SC-505, without export).
 - `make smoke` on the app's own test window (SC-602); universal ad hoc zip on GitHub Releases.
+
+## 0.1.1: Settings window (this release)
+
+- Settings… (cmd-,): every config option as a control writing one line of config, the two permissions with a button to each pane, the problems in the files, and the profiles, keymap and config folder (SC-505).
 
 ## 0.2.0: picker, area and CLI
 

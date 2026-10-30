@@ -41,7 +41,7 @@ From then on that copy opens like any app; each new version you download asks on
 
 ### Permissions, and again after every update
 
-sCapture needs Screen Recording to capture (macOS asks on first launch) and Accessibility to place windows (asked the first time a profile places one; without it the window is captured where it is). Both are in System Settings > Privacy & Security, and the menu has a row for each one that is missing.
+sCapture needs Screen Recording to capture (macOS asks on first launch) and Accessibility to place windows (asked the first time a profile places one; without it the window is captured where it is). Both are in System Settings > Privacy & Security; the menu has a row for each one that is missing, and Settings… shows both with a button to each pane.
 
 macOS ties both grants to the app's signature. An ad hoc signed update is a new signature, so after every update remove sCapture from both lists and add it again (or switch it off and on), then quit and reopen it. This goes away once releases are notarised.
 
@@ -55,7 +55,7 @@ The menu bar shows `<case>  <count>  <profile>`. The full key list is in [docs/k
 
 ## Configure
 
-Everything is plain text in `~/.config/scapture/`, written with comments on first run and reloaded when it changes: `config` (root folder, `name timestamp` or `case-step`, `auto_position`, `settle_ms`, `flash`, `toast`), `keymap` (the global keys) and `profiles`. A profile is a block:
+Settings… in the menu (cmd-,) sets the options, shows the two permissions and lists any problems in the files. Underneath, everything is plain text in `~/.config/scapture/`, written with comments on first run and reloaded when it changes: `config` (root folder, `name timestamp` or `case-step`, `auto_position`, `settle_ms`, `flash`, `toast`), `keymap` (the global keys) and `profiles`. A profile is a block:
 
 ```
 profile console-chrome
