@@ -2,6 +2,10 @@
 
 Versions follow semver. Each release lists what a user notices; docs/DECISIONS.md has the reasoning.
 
+## Unreleased
+
+- The Settings window's permissions note says to reset both entries with `tccutil reset` after an update, then allow them again; removing and adding sCapture in System Settings did not always replace the old entry.
+
 ## 0.1.1 (2026-10-31)
 
 - Settings… in the menu (cmd-,) opens a Settings window: the root folder with a folder picker, the file name style, placing the window before a capture and the wait after a move, the flash, the toast, launch at login. Each control writes one line of `~/.config/scapture/config`, so the file stays the truth.
