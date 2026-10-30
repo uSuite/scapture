@@ -2,6 +2,14 @@
 
 Versions follow semver. Each release lists what a user notices; docs/DECISIONS.md has the reasoning.
 
+## 0.1.2 (2026-10-31)
+
+- Edit Profiles… in the menu, and in Settings, opens a Profiles window: the profiles as a list with + and −, and a form for the app (pick a running one), the window title, place and size, inset and scale, with the output size in pixels. Each change rewrites only that profile's block of `~/.config/scapture/profiles`, keeping its comments; a change the file would not accept is shown and not written.
+- In the same window, Use Current Window takes the origin and size from where the window is now, Place moves and resizes it to the profile, and Test Capture shows what the capture key would take, at its pixel size, without saving it.
+- A profile finds its window in any running copy of its app, not only the first.
+- Paste works in New Case… and in the Settings fields, with cmd-V or from another app such as sPaste: the app now has the hidden Edit menu that carries cut, copy, paste, select all and undo.
+- The Settings window's permissions note says to reset both entries with `tccutil reset` after an update, then allow them again; removing and adding sCapture in System Settings did not always replace the old entry.
+
 ## 0.1.1 (2026-10-31)
 
 - Settings… in the menu (cmd-,) opens a Settings window: the root folder with a folder picker, the file name style, placing the window before a capture and the wait after a move, the flash, the toast, launch at login. Each control writes one line of `~/.config/scapture/config`, so the file stays the truth.

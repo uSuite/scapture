@@ -147,6 +147,26 @@ struct CaptureServiceTests {
         #expect(again.warnings.isEmpty)
     }
 
+    @Test func testCaptureWritesNothing() async throws {
+        let fake = FakeWindows(backingScale: 1)
+        let log = temp.url.appendingPathComponent("log")
+        let service = service(fake, log: log)
+        let result = try await service.test(chrome, config: Config())
+        #expect(fake.placed == [CGRect(x: 200, y: 50, width: 1520, height: 980)])
+        #expect(result.pixels == PixelSize(width: 3036, height: 1784))
+        #expect(result.image.width == 3036)
+        #expect(result.rect == CGRect(x: 201, y: 137, width: 1518, height: 892))
+        #expect(result.warnings == ["upsampled: the window is on a 1x display"])
+        #expect(store.count("poc-demo-vm-stop") == 0)
+        #expect(service.lastWindow == nil)
+        #expect(!FileManager.default.fileExists(atPath: log.path))
+        var config = Config()
+        config.autoPosition = false
+        let unplaced = try await service.test(front, config: config)
+        #expect(fake.placed.count == 1)
+        #expect(unplaced.pixels == PixelSize(width: 3040, height: 1960))
+    }
+
     @Test func errorMessages() {
         let all: [CaptureError] = [
             .noCase, .caseMissing("c"), .appNotRunning("a"), .noWindow(app: "a", title: nil),

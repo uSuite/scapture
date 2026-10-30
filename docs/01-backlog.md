@@ -40,6 +40,7 @@ The reason sCapture exists. A profile is a block in `~/.config/scapture/profiles
 - SC-306 (P2) Guard: if a capture's pixel size differs from the other files in the case folder, the toast shows a warning and the file name gets no special mark (the files stay honest; the author decides).
 - SC-307 (P1) Origin relative to a display: `display main|external|<name>` in a profile makes `origin` relative to that display's top-left, so one profile works on the laptop display alone and with an external display beside or above it. The Guide-Shot scripts carry the same geometry at a separate global origin for each display arrangement.
 - SC-308 (P2) Content rect from the page: for a browser, take the rect of the web area (`AXWebArea`) instead of a fixed inset, so a restore banner, an info bar or the bookmarks bar never ends up in the capture. With the fixed inset of Guide-Shot and the PoC, Chrome's "Continue where you left off" bar was captured as the top 56 points of the page.
+- SC-309 (P1) Profile editor: Edit Profiles… opens a window with the profiles as a list (add, remove) and a form for every field, showing the output pixel size; each change rewrites only that profile's block of the file, so comments survive, and is checked by the parser before it is written. Use Current Window takes origin and size from the window as it is; Place moves it to the profile; Test Capture captures as the key would and shows the image without saving it.
 
 ## E4 Naming and feedback (P0/P1)
 

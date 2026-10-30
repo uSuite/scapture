@@ -19,9 +19,14 @@ The smallest app worth installing: one key puts the profile's window, at its siz
 - Config, keymap and profiles as plain text, reloaded on change (SC-505, without export).
 - `make smoke` on the app's own test window (SC-602); universal ad hoc zip on GitHub Releases.
 
-## 0.1.1: Settings window (this release)
+## 0.1.1: Settings window (done)
 
 - Settings… (cmd-,): every config option as a control writing one line of config, the two permissions with a button to each pane, the problems in the files, and the profiles, keymap and config folder (SC-505).
+
+## 0.1.2: Profiles window (this release)
+
+- Edit Profiles…: the profiles as a list and a form that rewrite one block of the profiles file at a time, checked by the parser first; Use Current Window, Place and a Test Capture that saves nothing (SC-309).
+- Paste in New Case… and the Settings and Profiles fields (a hidden Edit menu); `tccutil reset` in the permissions note.
 
 ## 0.2.0: picker, area and CLI
 

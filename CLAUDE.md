@@ -8,14 +8,14 @@ macOS menu bar agent that captures a screenshot of a profiled window, at a fixed
 - `make coverage`  line coverage of SCaptureCore
 - `make app`       SwiftPM build wrapped into build/sCapture.app by scripts/bundle.sh, signed with an Apple Development certificate when there is one
 - `make run`       build and launch the agent
-- `make smoke`     capture the app's test window with two profiles and both name styles, assert names and pixel sizes, save the Settings window as settings.png (needs Screen Recording)
+- `make smoke`     capture the app's test window with two profiles and both name styles, assert names and pixel sizes, try the test capture, save the Settings and Profiles windows as settings.png and profiles.png (needs Screen Recording)
 - `make icon`      Resources/AppIcon.icns from the brand SVGs
 - `make release`   universal ad hoc signed app and zip in build/release/
 - `make poc`       run scripts/poc.sh (the shell proof of concept)
 
 ## Layers
 
-Core (Sources/SCaptureCore: ActiveCase, Profile, Namer, Writer, Log, Commands; Capturer and Positioner as protocols) -> App (Sources/sCapture: NSStatusItem and menu, SCK capturer, window list and AX positioner, Carbon hotkeys, flash and toast panels, Settings window, smoke mode; CLI from 0.2.0). Core has no ScreenCaptureKit or Accessibility import.
+Core (Sources/SCaptureCore: ActiveCase, Profile, Namer, Writer, Log, Commands; Capturer and Positioner as protocols) -> App (Sources/sCapture: NSStatusItem and menu, SCK capturer, window list and AX positioner, Carbon hotkeys, flash and toast panels, Settings and Profiles windows, smoke mode; CLI from 0.2.0). Core has no ScreenCaptureKit or Accessibility import.
 
 ## Rules
 

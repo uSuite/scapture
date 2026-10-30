@@ -32,6 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var caseWatcher: DirectoryWatcher?
     private var busy = false
     private var settings: SettingsWindowController?
+    private var profilesWindow: ProfilesWindowController?
 
     private var profilesURL: URL { paths.directory.appendingPathComponent("profiles") }
     private var store: CaseStore { CaseStore(root: config.rootURL()) }
@@ -41,6 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private static let sNotate = "io.github.usuite.snotate"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        EditMenu.install()
         toast.onClick = { [weak self] url in
             self?.openFile(url)
         }
@@ -54,7 +56,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 config: config,
                 service: service
             ) { [weak self] in
-                await self?.snapshotSettings(to: URL(fileURLWithPath: output, isDirectory: true))
+                let folder = URL(fileURLWithPath: output, isDirectory: true)
+                await self?.snapshot("settings.png", to: folder) {
+                    self?.openSettings()
+                    return self?.settings
+                }
+                await self?.snapshot("profiles.png", to: folder) {
+                    self?.openProfiles()
+                    return self?.profilesWindow
+                }
             }
             return
         }
@@ -121,6 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         watchCase()
         updateTitle()
         settings?.model.refresh()
+        profilesWindow?.model.refresh()
     }
 
     private func saveState() {
@@ -391,10 +402,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(entry)
         }
         menu.addItem(action("Edit Profiles…") { [weak self] in
-            guard let self else {
-                return
-            }
-            NSWorkspace.shared.open(profilesURL)
+            self?.openProfiles()
         })
 
         menu.addItem(.separator())
@@ -474,23 +482,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             model.onWrite = { [weak self] in
                 self?.loadSettings()
             }
+            model.openProfiles = { [weak self] in
+                self?.openProfiles()
+            }
             settings = SettingsWindowController(model: model)
         }
         settings?.show()
     }
 
-    /// Smoke mode: the Settings window as `settings.png`, so its layout is
-    /// checked without a click.
-    private func snapshotSettings(to folder: URL) async {
-        openSettings()
+    private func openProfiles() {
+        if profilesWindow == nil {
+            let model = ProfilesModel(
+                url: profilesURL,
+                windows: windows,
+                service: service
+            )
+            model.config = { [weak self] in
+                self?.config ?? Config()
+            }
+            model.onWrite = { [weak self] in
+                self?.loadSettings()
+            }
+            profilesWindow = ProfilesWindowController(model: model)
+        }
+        profilesWindow?.show()
+    }
+
+    /// Smoke mode: the Settings or the Profiles window as a PNG, so its
+    /// layout is checked without a click.
+    private func snapshot(
+        _ name: String,
+        to folder: URL,
+        of open: () -> NSWindowController?
+    ) async {
+        let controller = open()
         try? await Task.sleep(for: .milliseconds(500))
-        guard let view = settings?.window?.contentView,
+        guard let view = controller?.window?.contentView,
             let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds)
         else {
             return
         }
         view.cacheDisplay(in: view.bounds, to: rep)
-        try? rep.representation(using: .png, properties: [:])?.write(to: folder.appendingPathComponent("settings.png"))
+        try? rep.representation(using: .png, properties: [:])?.write(to: folder.appendingPathComponent(name))
     }
 
     private func profileSummary(_ profile: Profile) -> String {

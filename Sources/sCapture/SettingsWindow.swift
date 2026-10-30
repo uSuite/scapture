@@ -21,6 +21,7 @@ final class SettingsModel {
     @ObservationIgnored var current: () -> (config: Config, issues: [String]) = { (Config(), []) }
     /// Reloads the files into the app after a write.
     @ObservationIgnored var onWrite: () -> Void = {}
+    @ObservationIgnored var openProfiles: () -> Void = {}
 
     init(paths: ConfigPaths) {
         self.paths = paths
@@ -220,7 +221,7 @@ struct SettingsView: View {
             } header: {
                 Text("Permissions")
             } footer: {
-                Text("macOS ties both to the app's signature: after an update, remove sCapture from each list, add it again and reopen it.")
+                Text("macOS ties both to the app's signature. After an update, quit sCapture, run tccutil reset ScreenCapture io.github.usuite.scapture and tccutil reset Accessibility io.github.usuite.scapture in Terminal, then reopen it and allow both.")
                     .foregroundStyle(.secondary)
             }
             Section {
@@ -229,7 +230,10 @@ struct SettingsView: View {
                         .textSelection(.enabled)
                 }
                 HStack {
-                    Button("Edit Profiles") {
+                    Button("Edit Profiles…") {
+                        model.openProfiles()
+                    }
+                    Button("Profiles File") {
                         NSWorkspace.shared.open(model.profilesURL)
                     }
                     Button("Edit Keymap") {

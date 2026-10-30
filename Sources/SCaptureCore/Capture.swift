@@ -118,6 +118,30 @@ public struct PlaceResult: Sendable, Equatable {
     public var warnings: [String]
 }
 
+/// A capture kept in memory, for trying a profile in the Profiles window.
+public struct TestResult {
+    public var image: CGImage
+    public var pixels: PixelSize
+    /// The captured part of the screen in points, for the flash.
+    public var rect: CGRect
+    public var warnings: [String]
+    public var milliseconds: Int
+}
+
+/// What a capture and a test capture share: the window, where it was, the
+/// image and what to warn about.
+private struct Shot {
+    var window: WindowInfo
+    var crop: CGRect
+    var pixels: PixelSize
+    var image: CGImage
+    var warnings: [String]
+
+    var rect: CGRect {
+        crop.offsetBy(dx: window.frame.minX, dy: window.frame.minY)
+    }
+}
+
 /// One capture from key press to file: resolve the window, place it, capture
 /// the kept part at the profile's pixel size, write it under a new name, log.
 @MainActor
@@ -192,25 +216,8 @@ public final class CaptureService {
         if again, lastWindow == nil {
             throw .noLastWindow
         }
-        var window: WindowInfo
-        var warnings: [String] = []
-        if config.autoPosition {
-            let placed = try await place(profile, config: config, window: again ? lastWindow : nil)
-            window = placed.window
-            warnings = placed.warnings
-        } else {
-            window = try await (again ? resolver.refresh(lastWindow!) : resolver.resolve(profile))
-        }
-        guard let crop = profile.crop(windowSize: window.frame.size),
-            let pixels = profile.pixelSize(windowSize: window.frame.size)
-        else {
-            throw .emptyCrop(profile.name)
-        }
-        if window.backingScale < Double(profile.scale) {
-            warnings.append("upsampled: the window is on a \(Int(window.backingScale))x display")
-        }
-        let image = try await capturer.capture(window, crop: crop, pixels: pixels)
-        guard let data = Writer.png(image, scale: profile.scale) else {
+        let shot = try await shoot(profile, config: config, again: again)
+        guard let data = Writer.png(shot.image, scale: profile.scale) else {
             throw .write("could not encode the capture as PNG")
         }
         let namer = Namer(style: config.name, timeZone: timeZone)
@@ -232,7 +239,7 @@ public final class CaptureService {
         guard let written else {
             throw .write("no free file name in \(caseID) this second")
         }
-        lastWindow = window
+        lastWindow = shot.window
         let milliseconds = Int((now().timeIntervalSince(start) * 1000).rounded())
         if let log {
             let line = Log.line(
@@ -240,7 +247,7 @@ public final class CaptureService {
                 caseID: caseID,
                 profile: profile.name,
                 file: written,
-                size: pixels,
+                size: shot.pixels,
                 milliseconds: milliseconds
             )
             try? Log.append(line, to: log)
@@ -249,10 +256,62 @@ public final class CaptureService {
             file: folder.appendingPathComponent(written),
             caseID: caseID,
             count: store.count(caseID),
-            pixels: pixels,
-            rect: crop.offsetBy(dx: window.frame.minX, dy: window.frame.minY),
-            warnings: warnings,
+            pixels: shot.pixels,
+            rect: shot.rect,
+            warnings: shot.warnings,
             milliseconds: milliseconds
+        )
+    }
+
+    /// Captures `profile` as a real capture would, placing the window when
+    /// `auto_position` is on, but keeps the image: no case, no file, no log
+    /// line, and the repeat key still takes the last real capture's window.
+    public func test(
+        _ profile: Profile,
+        config: Config
+    ) async throws(CaptureError) -> TestResult {
+        let start = now()
+        let shot = try await shoot(profile, config: config, again: false)
+        return TestResult(
+            image: shot.image,
+            pixels: shot.pixels,
+            rect: shot.rect,
+            warnings: shot.warnings,
+            milliseconds: Int((now().timeIntervalSince(start) * 1000).rounded())
+        )
+    }
+
+    /// Resolves (or refreshes, for `again`) and places the window, then
+    /// captures its kept part at the profile's pixel size.
+    private func shoot(
+        _ profile: Profile,
+        config: Config,
+        again: Bool
+    ) async throws(CaptureError) -> Shot {
+        var window: WindowInfo
+        var warnings: [String] = []
+        if config.autoPosition {
+            let placed = try await place(profile, config: config, window: again ? lastWindow : nil)
+            window = placed.window
+            warnings = placed.warnings
+        } else {
+            window = try await (again ? resolver.refresh(lastWindow!) : resolver.resolve(profile))
+        }
+        guard let crop = profile.crop(windowSize: window.frame.size),
+            let pixels = profile.pixelSize(windowSize: window.frame.size)
+        else {
+            throw .emptyCrop(profile.name)
+        }
+        if window.backingScale < Double(profile.scale) {
+            warnings.append("upsampled: the window is on a \(Int(window.backingScale))x display")
+        }
+        let image = try await capturer.capture(window, crop: crop, pixels: pixels)
+        return Shot(
+            window: window,
+            crop: crop,
+            pixels: pixels,
+            image: image,
+            warnings: warnings
         )
     }
 
