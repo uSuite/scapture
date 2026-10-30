@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private static let sNotate = "io.github.usuite.snotate"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        EditMenu.install()
         toast.onClick = { [weak self] url in
             self?.openFile(url)
         }
