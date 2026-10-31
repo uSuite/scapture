@@ -52,6 +52,16 @@ tccutil reset Accessibility io.github.usuite.scapture
 
 Then open sCapture and allow both again when macOS asks, or from Settings…. Removing sCapture from the lists and adding it again in System Settings looks the same, but it does not always replace the old entry. This goes away once releases are notarised.
 
+## What it reads and writes
+
+sCapture captures the window a profile names, when you press a capture key, and writes nothing until you do. It has no network code: nothing is collected, sent or uploaded.
+
+- `~/.config/scapture/` (or `$XDG_CONFIG_HOME/scapture/`), created on first launch: `config`, `keymap` and `profiles`, plain text you can edit; `state.json`, the active case and profile, safe to delete; `log`, one line per capture.
+- The capture root, `~/Pictures/scapture` by default (`root` in `config`): New Case… creates a folder there, and each capture is a PNG in the active case.
+- Screen Recording to capture and Accessibility to place windows, as above.
+
+This release is not sandboxed yet, which is why macOS does not ask before sCapture writes these folders. The next minor version moves sCapture into the App Sandbox: it will ask once before it uses `~/Pictures/scapture` or the root you choose, and its own files will live in its container, with your current ones moved there on first launch.
+
 ## Use
 
 1. Make a case: menu > New Case…, a lower-case id such as `poc-demo-vm-stop`. Cases are the folders under the root (`~/Pictures/scapture` by default); the menu lists them, newest first, and picks one as active.
